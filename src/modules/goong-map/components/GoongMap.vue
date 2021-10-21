@@ -3,7 +3,7 @@
   </div>
 </template>
 <script>
-import {randomStr} from "../../helpers/function";
+import {randomStr} from "../../../helpers/function";
 import goongjs from "@goongmaps/goong-js";
 import polyline from "@mapbox/polyline";
 import gmsDirection from "@goongmaps/goong-sdk/services/directions";
