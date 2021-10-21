@@ -6,8 +6,8 @@ import "./assets/goong-js.css";
 Vue.config.productionTip = false;
 Vue.use(CargolinkMap, {
   driver: "goongmap",
-  mapToken: "qw9p1ha4HKmmF0k9RysiascXn7wCNuKQiQHl01dr",
-  apiToken: "VP4shKH08b0efjQoDPRraAW0nMafCdzCqUP8WtdA"
+  mapToken: "YOUR_MAP_TOKEN",
+  apiToken: "YOUR_API_TOKEN"
 });
 
 new Vue({
