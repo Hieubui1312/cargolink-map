@@ -1,0 +1,53 @@
+{
+  "name": "cargolink-map",
+  "version": "0.1.0",
+  "private": false,
+  "author": {
+    "email": "cargolink@cargolink.vn",
+    "name": "cargolink"
+  },
+  "repository": "https://github.com/Hieubui1312/cargolink-map",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "build-library" : "vue-cli-service build --target lib --name cargolink-map ./src/install.js"
+  },
+  "main" : "dist/cargolink-map.common.js",
+  "files": ["dist/*"],
+  "dependencies": {
+    "@goongmaps/goong-js": "^1.0.9",
+    "@goongmaps/goong-sdk": "^1.0.7",
+    "@mapbox/polyline": "^1.1.1",
+    "core-js": "^3.6.5",
+    "vue": "^2.6.11"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
