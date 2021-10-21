@@ -1,5 +1,6 @@
 import CargolinkMap from "./components/CargolinkMap";
 import SearchAddressInput from "./components/SearchAddressInput";
+import SuggestionAddress from "./components/SuggestionAddress";
 import "./assets/goong-js.css";
 
 export default function install(Vue, options) {
@@ -13,8 +14,9 @@ export default function install(Vue, options) {
         Vue.prototype.$cargolinkMap = "GoogleMap";
     }
 
-    Vue.component("CargolinkMap", CargolinkMap);
-    Vue.component("SearchAddressInput", SearchAddressInput);
+    Vue.component("CargoMap", CargolinkMap);
+    Vue.component("CargoMapSearchAddressInput", SearchAddressInput);
+    Vue.component("CargoMapSuggestionAddress", SuggestionAddress);
 }
 
 if (typeof window !== 'undefined' && window.Vue) {
