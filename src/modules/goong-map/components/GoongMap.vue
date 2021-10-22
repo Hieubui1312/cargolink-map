@@ -7,6 +7,7 @@ import {randomStr} from "../../../helpers/function";
 import goongjs from "@goongmaps/goong-js";
 import polyline from "@mapbox/polyline";
 import gmsDirection from "@goongmaps/goong-sdk/services/directions";
+import Popup from "../instances/popup";
 
 export default {
   props: {
@@ -29,6 +30,9 @@ export default {
     marker: {
       type: Array
     },
+    markers: {
+      type: Array
+    },
     direction: {
       type: Object
     }
@@ -45,12 +49,15 @@ export default {
   },
   mounted() {
     const map = this.initialMap();
-    if (this.marker) {
-      this.addMarkerIntoMap(map, this.marker)
-    }
     map.on("load",  () => {
       if (this.direction && this.direction.origin && this.direction.destination) {
         this.findDirection(this.direction.origin, this.direction.destination, map);
+      }
+      if (this.marker) {
+        this.addMarkerIntoMap(map, this.marker);
+      }
+      if (this.markers) {
+        this.addMarkers(this.markers, map);
       }
     })
   },
@@ -67,8 +74,37 @@ export default {
       const map = new this.goong.Map(options)
       return map;
     },
+
     addMarkerIntoMap: function (map, longlat){
       new this.goong.Marker().setLngLat(longlat).addTo(map)
+    },
+
+    // Reference option into https://docs.goong.io/javascript/markers/#marker
+    // Long lat of marker ex: [30.5, 50.5]]
+    addMarkers: function (markers, map) {
+      markers.forEach(marker => {
+        if (!marker.options || !marker.longLat) throw new Error("Format of marker is not correct. It's must contain [{options?, longLat?}]");
+        const markerInstance = new this.goong.Marker(marker.options);
+        markerInstance.setLngLat(marker.longLat)
+
+        if (marker.options.draggable) {
+          markerInstance.on('dragend', () => {
+            marker.dragend && marker.dragend(markerInstance.getLngLat());
+          })
+          markerInstance.on('dragstart', () => {
+            marker?.dragstart && marker.dragstart(markerInstance.getLngLat());
+          })
+          markerInstance.on('drag', () => {
+            marker.drag && marker.drag(markerInstance.getLngLat());
+          })
+        }
+
+        if (marker.popup) {
+          const popup = new Popup(marker.popup.options, marker.popup.extraOptions)
+          markerInstance.setPopup(popup);
+        }
+        markerInstance.addTo(map);
+      })
     },
 
     findDirection: function (origin, destination, map) {
