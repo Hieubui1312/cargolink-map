@@ -37,6 +37,11 @@ export default {
       type: Object
     }
   },
+  data: function (){
+    return {
+      markersManager: []
+    }
+  },
   computed: {
     randomIdMap: function (){
       return `map` + randomStr(10);
@@ -45,10 +50,27 @@ export default {
       if (!this.mapToken) throw new Error("Please define map token of GoongMap into plugin option")
       goongjs.accessToken = this.mapToken;
       return goongjs;
-    }
+    },
+    initialMap: function (){
+      const options = {
+        container: this.randomIdMap,
+        style: this.mode,
+        zoom: this.zoom,
+        center: this.center,
+      };
+      const map = new this.goong.Map(options)
+
+      // Find way to animation when update center zoom
+      // map.easeTo({
+      //   duration: 2000,
+      //   animate: true,
+      //   essential: true
+      // })
+      return map;
+    },
   },
   mounted() {
-    const map = this.initialMap();
+    const map = this.initialMap;
     map.on("load",  () => {
       if (this.direction && this.direction.origin && this.direction.destination) {
         this.findDirection(this.direction.origin, this.direction.destination, map);
@@ -59,22 +81,19 @@ export default {
       if (this.markers) {
         this.addMarkers(this.markers, map);
       }
+
+      // let flag = true;
+      // setInterval(() => {
+      //   if (flag) {
+      //     map.setCenter([105.83991, 21.02800])
+      //   } else {
+      //     map.setCenter([106.314552, 20.937342])
+      //   }
+      //   flag = !flag
+      // }, 1000);
     })
   },
   methods: {
-    initialMap: function (){
-      const options = {
-        container: this.randomIdMap,
-        style: this.mode,
-        zoom: this.zoom
-      };
-      if (this.center) {
-        options.center = this.center
-      }
-      const map = new this.goong.Map(options)
-      return map;
-    },
-
     addMarkerIntoMap: function (map, longlat){
       new this.goong.Marker().setLngLat(longlat).addTo(map)
     },
@@ -85,6 +104,7 @@ export default {
       markers.forEach(marker => {
         if (!marker.options || !marker.longLat) throw new Error("Format of marker is not correct. It's must contain [{options?, longLat?}]");
         const markerInstance = new this.goong.Marker(marker.options);
+        this.markersManager.push(markerInstance);
         markerInstance.setLngLat(marker.longLat)
 
         if (marker.options.draggable) {
@@ -105,6 +125,13 @@ export default {
         }
         markerInstance.addTo(map);
       })
+    },
+
+    removeAllMarker: function () {
+      while (this.markersManager.length) {
+        const marker = this.markersManager.pop();
+        marker.remove();
+      }
     },
 
     findDirection: function (origin, destination, map) {
@@ -156,6 +183,14 @@ export default {
             );
           });
     }
+  },
+  watch: {
+    markers: function (newMarkers) {
+      const map = this.initialMap;
+      this.removeAllMarker()
+      this.addMarkers(newMarkers, map);
+      map.setCenter(newMarkers[newMarkers.length - 1].longLat)
+    },
   }
 }
 </script>
