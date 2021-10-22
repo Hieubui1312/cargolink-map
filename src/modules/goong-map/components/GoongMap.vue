@@ -189,7 +189,12 @@ export default {
       const map = this.initialMap;
       this.removeAllMarker()
       this.addMarkers(newMarkers, map);
-      map.setCenter(newMarkers[newMarkers.length - 1].longLat)
+      if (newMarkers.length) {
+        const lastMarker = newMarkers[newMarkers.length - 1];
+        if (lastMarker && lastMarker.longLat) {
+          map.setCenter(lastMarker.longLat)
+        }
+      }
     },
   }
 }
