@@ -142,10 +142,15 @@ export default {
     findBoundingBox: function () {
       const map = this.initialMap;
       const direction = this.direction;
-      const boundingBox = [
-        direction.origin.split(","),
-        ...direction.destination.map(item => item.split(','))
-      ]
+      const boundingBox = [];
+      if (direction.origin) {
+        boundingBox.push(direction.origin.split(","));
+      }
+      if (direction.destination && direction.destination.length) {
+        direction.destination.forEach(item => {
+          if (item) boundingBox.push(item.split(","));
+        })
+      }
       map.fitBounds(boundingBox, {
         padding: 30
       });
