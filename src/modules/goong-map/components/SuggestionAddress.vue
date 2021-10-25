@@ -9,6 +9,7 @@
 </template>
 <script>
 import {forwardGeocoding} from "../functions/functions";
+import {debounce} from "../../../helpers/function";
 
 export default {
   props: {
@@ -42,15 +43,6 @@ export default {
         this.suggestAddress = [];
       })
     },
-    debounce: function (fn, delay) {
-      return args => {
-        clearTimeout(fn.id)
-
-        fn.id = setTimeout(() => {
-          fn.call(this, args)
-        }, delay)
-      }
-    },
     chooseAddress: function (address){
       this.isDone = true;
       this.address = address;
@@ -63,7 +55,7 @@ export default {
   watch: {
     address: function (value){
       if (!this.isDone) {
-        this.debounce(this.searchAddress, 500)(value)
+        debounce(this.searchAddress, 500)(this, value)
       }
     }
   }

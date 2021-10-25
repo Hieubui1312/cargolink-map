@@ -8,6 +8,7 @@ import goongjs from "@goongmaps/goong-js";
 import polyline from "@mapbox/polyline";
 import gmsDirection from "@goongmaps/goong-sdk/services/directions";
 import Popup from "../instances/popup";
+import {debounce} from "../../../helpers/function";
 
 export default {
   props: {
@@ -39,7 +40,8 @@ export default {
   },
   data: function (){
     return {
-      markersManager: []
+      markersManager: [],
+      directionManager: []
     }
   },
   computed: {
@@ -60,12 +62,6 @@ export default {
       };
       const map = new this.goong.Map(options)
 
-      // Find way to animation when update center zoom
-      // map.easeTo({
-      //   duration: 2000,
-      //   animate: true,
-      //   essential: true
-      // })
       return map;
     },
   },
@@ -73,24 +69,15 @@ export default {
     const map = this.initialMap;
     map.on("load",  () => {
       if (this.direction && this.direction.origin && this.direction.destination) {
-        this.findDirection(this.direction.origin, this.direction.destination, map);
+        this.findManyDirections();
       }
       if (this.marker) {
         this.addMarkerIntoMap(map, this.marker);
       }
       if (this.markers) {
-        this.addMarkers(this.markers, map);
+        this.addMarkers(this.markers);
       }
 
-      // let flag = true;
-      // setInterval(() => {
-      //   if (flag) {
-      //     map.setCenter([105.83991, 21.02800])
-      //   } else {
-      //     map.setCenter([106.314552, 20.937342])
-      //   }
-      //   flag = !flag
-      // }, 1000);
     })
   },
   methods: {
@@ -100,7 +87,8 @@ export default {
 
     // Reference option into https://docs.goong.io/javascript/markers/#marker
     // Long lat of marker ex: [30.5, 50.5]]
-    addMarkers: function (markers, map) {
+    addMarkers: function (markers) {
+      const map = this.initialMap;
       markers.forEach(marker => {
         if (!marker.options || !marker.longLat) throw new Error("Format of marker is not correct. It's must contain [{options?, longLat?}]");
         const markerInstance = new this.goong.Marker(marker.options);
@@ -133,9 +121,45 @@ export default {
         marker.remove();
       }
     },
-
-    findDirection: function (origin, destination, map) {
+    removeAndAddMarker: function (newMarkers) {
+      this.removeAllMarker();
+      this.addMarkers(newMarkers);
+    },
+    findManyDirections: function () {
+      const {origin, destination} = this.direction;
+      for (let add of destination) {
+        this.findDirection(origin, add);
+      }
+    },
+    removeSourceAndLayer: function () {
+      const map = this.initialMap;
+      while (this.directionManager.length) {
+        const key = this.directionManager.pop();
+        if (map.getLayer(key)) map.removeLayer(key);
+        if (map.getSource(key)) map.removeSource(key);
+      }
+    },
+    findBoundingBox: function () {
+      const map = this.initialMap;
+      const direction = this.direction;
+      const boundingBox = [
+        direction.origin.split(","),
+        ...direction.destination.map(item => item.split(','))
+      ]
+      map.fitBounds(boundingBox, {
+        padding: 30
+      });
+    },
+    resetDirection: function () {
+      this.findBoundingBox();
+      this.removeSourceAndLayer();
+      this.findManyDirections();
+    },
+    findDirection: function (origin, destination) {
+      const map = this.initialMap;
       const layers = map.getStyle().layers;
+      const newOrigin = origin.split(",").reverse().join(",");
+      const newDestination = destination.split(",").reverse().join(",");
       // Find the index of the first symbol layer in the map style
       let firstSymbolId;
       for (let i = 0; i < layers.length; i++) {
@@ -149,27 +173,30 @@ export default {
       // Get Directions
       const directionService = gmsDirection({ accessToken: this.apiToken });
       directionService.getDirections({
-            origin,
-            destination,
+            origin: newOrigin,
+            destination: newDestination,
             vehicle: 'car'
           })
           .send()
-          .then(function (response) {
+          .then((response) => {
             let directions = response.body;
             let route = directions.routes[0];
 
             let geometry_string = route.overview_polyline.points;
             let geoJSON = polyline.toGeoJSON(geometry_string);
-            map.addSource('route', {
+
+            const randomRoute = randomStr(5);
+            this.directionManager.push(randomRoute);
+            map.addSource(randomRoute, {
               'type': 'geojson',
               'data': geoJSON
             });
-// Add route layer below symbol layers
+            // Add route layer below symbol layers
             map.addLayer(
                 {
-                  'id': 'route',
+                  'id': randomRoute,
                   'type': 'line',
-                  'source': 'route',
+                  'source': randomRoute,
                   'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
@@ -186,16 +213,11 @@ export default {
   },
   watch: {
     markers: function (newMarkers) {
-      const map = this.initialMap;
-      this.removeAllMarker()
-      this.addMarkers(newMarkers, map);
-      if (newMarkers.length) {
-        const lastMarker = newMarkers[newMarkers.length - 1];
-        if (lastMarker && lastMarker.longLat) {
-          map.setCenter(lastMarker.longLat)
-        }
-      }
+      debounce(this.removeAndAddMarker, 500)(this, newMarkers);
     },
+    direction: function () {
+      debounce(this.resetDirection, 500)(this);
+    }
   }
 }
 </script>
