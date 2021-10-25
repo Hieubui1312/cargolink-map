@@ -20,7 +20,7 @@ export default function install(Vue, options) {
 
     Vue.prototype.$cargoMap = {
         findDirection: (origin, destination, ...args) => {
-            const instance = new Direction(this.apiToken);
+            const instance = new Direction(options.apiToken);
             return instance.getDirection(origin, destination, ...args);
         }
     }
