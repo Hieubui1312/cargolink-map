@@ -1,10 +1,11 @@
 <template>
-  <div>
-    <div :key="`addr-${index}`" class="suggestion-address" v-for="(addr, index) in suggestAddress">
-      <p class="address" @click="() => chooseAddress(addr)">
-        {{ addr.formatted_address }}
-      </p>
-    </div>
+  <div class="wrapper-suggestion-address">
+    <p :key="`addr-${index}`"
+         @click="() => chooseAddress(addr)"
+         class="suggestion-address"
+         v-for="(addr, index) in suggestAddress">
+      {{ addr.formatted_address }}
+    </p>
   </div>
 </template>
 <script>
@@ -61,10 +62,15 @@ export default {
 }
 </script>
 <style>
-.address{
+.suggestion-address{
   cursor: pointer;
 }
-.address:hover{
+.suggestion-address:hover{
   background: #ccc;
+}
+.wrapper-suggestion-address{
+  background: white;
+  padding: 5px;
+  border-radius: 4px;
 }
 </style>
