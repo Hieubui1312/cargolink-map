@@ -86,7 +86,6 @@ export default {
     },
 
     // Reference option into https://docs.goong.io/javascript/markers/#marker
-    // Long lat of marker ex: [30.5, 50.5]]
     addMarkers: function (markers) {
       const map = this.initialMap;
       markers.forEach(marker => {
@@ -96,14 +95,17 @@ export default {
         markerInstance.setLngLat(marker.longLat)
 
         if (marker.options.draggable) {
-          markerInstance.on('dragend', () => {
-            marker.dragend && marker.dragend(markerInstance.getLngLat());
+          markerInstance.on('dragend', async () => {
+            const lngLat = markerInstance.getLngLat();
+            marker.dragend && marker.dragend(await this.$cargoMap.reverseGeoCoding(lngLat.lng, lngLat.lat).then(res => res.json()));
           })
-          markerInstance.on('dragstart', () => {
-            marker?.dragstart && marker.dragstart(markerInstance.getLngLat());
+          markerInstance.on('dragstart', async () => {
+            const lngLat = markerInstance.getLngLat();
+            marker?.dragstart && marker.dragstart(await this.$cargoMap.reverseGeoCoding(lngLat.lng, lngLat.lat).then(res => res.json()));
           })
-          markerInstance.on('drag', () => {
-            marker.drag && marker.drag(markerInstance.getLngLat());
+          markerInstance.on('drag', async () => {
+            const lngLat = markerInstance.getLngLat();
+            marker.drag && marker.drag(await this.$cargoMap.reverseGeoCoding(lngLat.lng, lngLat.lat).then(res => res.json()));
           })
         }
 
@@ -151,9 +153,32 @@ export default {
           if (item) boundingBox.push(item.split(","));
         })
       }
-      map.fitBounds(boundingBox, {
-        padding: 30
-      });
+      if (boundingBox.length >= 2) {
+        let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+        boundingBox.forEach(item => {
+          if (+item[1] < minLat) {
+            minLat = +item[1];
+          }
+          if (+item[1] > maxLat) {
+            maxLat = +item[1];
+          }
+          if (+item[0] < minLng) {
+            minLng = +item[0];
+          }
+          if (+item[0] > maxLng) {
+            maxLng = +item[0];
+          }
+        })
+
+        map.fitBounds([
+            [minLng, minLat],
+            [maxLng, maxLat]
+        ], {
+          padding: 30
+        });
+      } else if (boundingBox.length == 1) {
+        map.setCenter(boundingBox[0]);
+      }
     },
     resetDirection: function () {
       this.findBoundingBox();
@@ -217,11 +242,15 @@ export default {
     }
   },
   watch: {
-    markers: function (newMarkers) {
-      debounce(this.removeAndAddMarker, 500)(this, newMarkers);
+    markers: function (newMarkers, oldMarkers) {
+      if (JSON.stringify(newMarkers) !== JSON.stringify(oldMarkers)) {
+        debounce(this.removeAndAddMarker, 500)(this, newMarkers);
+      }
     },
-    direction: function () {
-      debounce(this.resetDirection, 500)(this);
+    direction: function (newDirection, oldDirections) {
+      if (JSON.stringify(newDirection) !== JSON.stringify(oldDirections)) {
+        debounce(this.resetDirection, 500)(this);
+      }
     }
   }
 }

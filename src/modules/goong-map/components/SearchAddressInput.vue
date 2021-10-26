@@ -14,7 +14,6 @@
   </div>
 </template>
 <script>
-import {forwardGeocoding} from "../functions/functions";
 
 export default {
   props: {
@@ -53,7 +52,7 @@ export default {
   },
   methods: {
     searchAddress: function (value){
-      forwardGeocoding(this.apiToken, value).then(res => {
+      this.$cargoMap.forwardGeocoding(value).then(res => {
         return res.json()
       }).then(data => {
         this.suggestAddress = data.results;
