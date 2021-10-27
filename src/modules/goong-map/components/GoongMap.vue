@@ -28,9 +28,6 @@ export default {
       type: Array,
       default: () => [105.83991, 21.02800]
     },
-    marker: {
-      type: Array
-    },
     markers: {
       type: Array
     },
@@ -188,6 +185,7 @@ export default {
     findDirection: function (origin, destination) {
       const map = this.initialMap;
       const layers = map.getStyle().layers;
+      if (!origin || !destination || !destination.length) return;
       const newOrigin = origin.split(",").reverse().join(",");
       const newDestination = destination.split(",").reverse().join(",");
       // Find the index of the first symbol layer in the map style
