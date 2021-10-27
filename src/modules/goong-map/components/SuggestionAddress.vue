@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper-suggestion-address">
+  <div>
     <p :key="`addr-${index}`"
          @click="() => chooseAddress(addr)"
          class="suggestion-address"
@@ -64,13 +64,10 @@ export default {
 <style>
 .suggestion-address{
   cursor: pointer;
+  padding: 2px 5px;
+  font-size: 14px;
 }
 .suggestion-address:hover{
-  background: #ccc;
-}
-.wrapper-suggestion-address{
-  background: white;
-  padding: 5px;
-  border-radius: 4px;
+  background: rgba(204, 204, 204, 0.31);
 }
 </style>
