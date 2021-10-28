@@ -57,15 +57,14 @@ export default {
         zoom: this.zoom,
         center: this.center,
       };
-      const map = new this.goong.Map(options)
-
-      return map;
+      return  new this.goong.Map(options)
     },
   },
   mounted() {
     const map = this.initialMap;
     map.on("load",  () => {
       if (this.direction && this.direction.origin && this.direction.destination) {
+        this.findBoundingBox();
         this.findManyDirections();
       }
       if (this.marker) {
@@ -173,7 +172,7 @@ export default {
         ], {
           padding: 30
         });
-      } else if (boundingBox.length == 1) {
+      } else if (boundingBox.length === 1) {
         map.setCenter(boundingBox[0]);
       }
     },
