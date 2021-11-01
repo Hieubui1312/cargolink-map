@@ -38,7 +38,8 @@ export default {
   data: function (){
     return {
       markersManager: [],
-      directionManager: []
+      directionManager: [],
+      popupDirectionManager: []
     }
   },
   computed: {
@@ -178,6 +179,7 @@ export default {
     },
     resetDirection: function () {
       this.findBoundingBox();
+      this.removePopupDirection();
       this.removeSourceAndLayer();
       this.findManyDirections();
     },
@@ -212,6 +214,17 @@ export default {
             let geometry_string = route.overview_polyline.points;
             let geoJSON = polyline.toGeoJSON(geometry_string);
 
+            // Add popup distance and duration direction
+            const legs = route.legs;
+            if (legs && legs.length > 0) {
+              const leg = legs[0];
+              const pointsDirection = polyline.decode(geometry_string);
+              if (pointsDirection && pointsDirection.length) {
+                const halfPoint = pointsDirection[Math.floor(pointsDirection.length / 2)];
+                this.addPopupDirection(halfPoint.reverse(), leg.distance.text, leg.duration.text);
+              }
+            }
+
             const randomRoute = randomStr(5);
             this.directionManager.push(randomRoute);
             map.addSource(randomRoute, {
@@ -236,6 +249,22 @@ export default {
                 firstSymbolId
             );
           });
+    },
+    removePopupDirection: function () {
+      while (this.popupDirectionManager.length) {
+        const popup = this.popupDirectionManager.pop();
+        popup.remove();
+      }
+    },
+    addPopupDirection: function (halfPoint, distance, duration) {
+      const map = this.initialMap;
+      const popup = new this.goong.Popup({ closeOnClick: false })
+        .setLngLat(halfPoint)
+        .setHTML(`
+            <p style="font-size: 12px; margin: 0">${distance}</p>
+            <p style="font-size: 12px; margin: 0">${duration}</p>`)
+      this.popupDirectionManager.push(popup);
+      popup.addTo(map);
     }
   },
   watch: {
@@ -248,7 +277,7 @@ export default {
       if (JSON.stringify(newDirection) !== JSON.stringify(oldDirections)) {
         debounce(this.resetDirection, 500)(this);
       }
-    }
+    },
   }
 }
 </script>
