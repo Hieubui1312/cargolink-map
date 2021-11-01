@@ -127,10 +127,12 @@ export default {
     },
     findManyDirections: function () {
       const {origin, destination} = this.direction;
-      if(destination) {
+      if(destination && destination.length > 0) {
         this.findDirection(origin,destination[0])
-        for( let i = 0; i < destination.length-1; i++) {
-          this.findDirection(destination[i],destination[i+1]);
+        if(destination.length > 1) {
+          for( let i = 0; i < destination.length-1; i++) {
+            this.findDirection(destination[i],destination[i+1]);
+          }
         }
       }
     },
