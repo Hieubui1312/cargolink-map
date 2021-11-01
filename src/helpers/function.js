@@ -8,3 +8,13 @@ export function randomStr(length) {
     }
     return result;
 }
+
+export function debounce (fn, delay) {
+    return (self, ...args) => {
+        clearTimeout(fn.id)
+
+        fn.id = setTimeout(() => {
+            fn.call(self, ...args)
+        }, delay)
+    }
+}

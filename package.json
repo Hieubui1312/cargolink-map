@@ -1,6 +1,6 @@
 {
   "name": "cargolink-map",
-  "version": "0.1.0",
+  "version": "0.1.12",
   "private": false,
   "author": {
     "email": "cargolink@cargolink.vn",
@@ -11,10 +11,12 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "build-library" : "vue-cli-service build --target lib --name cargolink-map ./src/install.js"
+    "build-library": "vue-cli-service build --target lib --name cargolink-map ./src/install.js"
   },
-  "main" : "dist/cargolink-map.common.js",
-  "files": ["dist/*"],
+  "main": "dist/cargolink-map.common.js",
+  "files": [
+    "dist/*"
+  ],
   "dependencies": {
     "@goongmaps/goong-js": "^1.0.9",
     "@goongmaps/goong-sdk": "^1.0.7",

@@ -3,15 +3,14 @@
   </component>
 </template>
 <script>
-import SearchAddressInputGoongMap from "../modules/goong-map/components/SearchAddressInput";
+import SuggestionAddressGoongMap from "../modules/goong-map/components/SuggestionAddress";
 import {MAP_DRIVER_OPTIONS} from "../constants/config";
+
 export default {
-  name: "SearchAddressInput",
-  components: {
-    SearchAddressInputGoongMap
-  },
   props: {
-    value: Object
+    value: {
+      type: Object
+    }
   },
   computed: {
     address: {
@@ -24,7 +23,7 @@ export default {
     },
     dynamicComponent() {
       if (this.driverMap === MAP_DRIVER_OPTIONS.GOONG_MAP) {
-        return SearchAddressInputGoongMap;
+        return SuggestionAddressGoongMap;
       } else {
         return "";
       }
@@ -32,6 +31,7 @@ export default {
     resetProps() {
       return { ...this.$attrs };
     },
-  }
+  },
+
 }
 </script>
