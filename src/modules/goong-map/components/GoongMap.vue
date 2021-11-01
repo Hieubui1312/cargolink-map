@@ -39,7 +39,7 @@ export default {
     return {
       markersManager: [],
       directionManager: [],
-      popupDirectionManager: []
+      popupDirectionManager: [],
     }
   },
   computed: {
@@ -65,8 +65,7 @@ export default {
     const map = this.initialMap;
     map.on("load",  () => {
       if (this.direction && this.direction.origin && this.direction.destination) {
-        this.findBoundingBox();
-        this.findManyDirections();
+        this.resetDirection();
       }
       if (this.marker) {
         this.addMarkerIntoMap(map, this.marker);
@@ -126,14 +125,21 @@ export default {
     },
     findManyDirections: function () {
       const {origin, destination} = this.direction;
+      const directionResult = [];
       if(destination && destination.length > 0) {
-        this.findDirection(origin,destination[0])
+        directionResult.push(this.findDirection(origin,destination[0]))
         if(destination.length > 1) {
           for( let i = 0; i < destination.length-1; i++) {
-            this.findDirection(destination[i],destination[i+1]);
+            directionResult.push(this.findDirection(destination[i],destination[i+1]));
           }
         }
       }
+      Promise.all(directionResult).then(value => {
+        this.$emit("distanceDuration", value)
+      }).catch((error) => {
+        window.console.error(error.message);
+        this.$emit("distanceDuration", [])
+      })
     },
     removeSourceAndLayer: function () {
       const map = this.initialMap;
@@ -206,7 +212,9 @@ export default {
 
       // Get Directions
       const directionService = gmsDirection({ accessToken: this.apiToken });
-      directionService.getDirections({
+      let distance = "", duration = "";
+
+      return directionService.getDirections({
             origin: newOrigin,
             destination: newDestination,
             vehicle: 'car'
@@ -225,7 +233,9 @@ export default {
               const pointsDirection = polyline.decode(geometry_string);
               if (pointsDirection && pointsDirection.length) {
                 const halfPoint = pointsDirection[Math.floor(pointsDirection.length / 2)];
-                this.addPopupDirection(halfPoint.reverse(), leg.distance.text, leg.duration.text);
+                distance = leg.distance.text;
+                duration = leg.duration.text;
+                this.addPopupDirection(halfPoint.reverse(), distance, duration);
               }
             }
 
@@ -252,6 +262,10 @@ export default {
                 },
                 firstSymbolId
             );
+            return {
+              distance,
+              duration
+            }
           });
     },
     removePopupDirection: function () {
