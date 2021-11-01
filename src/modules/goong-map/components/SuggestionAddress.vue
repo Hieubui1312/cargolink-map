@@ -1,14 +1,14 @@
 <template>
-  <div>
-    <div :key="`addr-${index}`" class="suggestion-address" v-for="(addr, index) in suggestAddress">
-      <p class="address" @click="() => chooseAddress(addr)">
-        {{ addr.formatted_address }}
-      </p>
-    </div>
+  <div class="wrapper-suggestion-address">
+    <p :key="`addr-${index}`"
+         @click="() => chooseAddress(addr)"
+         class="suggestion-address"
+         v-for="(addr, index) in suggestAddress">
+      {{ addr.formatted_address }}
+    </p>
   </div>
 </template>
 <script>
-import {forwardGeocoding} from "../functions/functions";
 import {debounce} from "../../../helpers/function";
 
 export default {
@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     searchAddress: function (value){
-      forwardGeocoding(this.apiToken, value).then(res => {
+      this.$cargoMap.forwardGeocoding(value).then(res => {
         return res.json();
       }).then(data => {
         this.suggestAddress = data.results;
@@ -61,11 +61,16 @@ export default {
   }
 }
 </script>
-<style>
-.address{
+<style scoped>
+.suggestion-address{
   cursor: pointer;
+  padding: 2px 5px;
+  font-size: 14px;
 }
-.address:hover{
-  background: #ccc;
+.suggestion-address:hover{
+  background: rgba(204, 204, 204, 0.31);
+}
+.wrapper-suggestion-address {
+  background: white;
 }
 </style>
