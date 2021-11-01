@@ -127,8 +127,11 @@ export default {
     },
     findManyDirections: function () {
       const {origin, destination} = this.direction;
-      for (let add of destination) {
-        this.findDirection(origin, add);
+      if(destination) {
+        this.findDirection(origin,destination[0])
+        for( let i = 0; i < destination.length-1; i++) {
+          this.findDirection(destination[i],destination[i+1]);
+        }
       }
     },
     removeSourceAndLayer: function () {
@@ -186,7 +189,6 @@ export default {
           .then((response) => {
             let directions = response.body;
             let route = directions.routes[0];
-
             let geometry_string = route.overview_polyline.points;
             let geoJSON = polyline.toGeoJSON(geometry_string);
 
