@@ -9,6 +9,8 @@ import polyline from "@mapbox/polyline";
 import gmsDirection from "@goongmaps/goong-sdk/services/directions";
 import Popup from "../instances/popup";
 import {debounce} from "../../../helpers/function";
+import {tracking} from "../functions/functions";
+import {KEY_TYPE} from "../../../constants/config";
 
 export default {
   props: {
@@ -64,6 +66,12 @@ export default {
   mounted() {
     const map = this.initialMap;
     map.on("load",  () => {
+      if (this.trackingUrl) {
+        tracking(this.trackingUrl, this.authUserName, this.authPassword, {
+          key: this.mapToken,
+          type: KEY_TYPE.MAP_KEY
+        })
+      }
       if (this.direction && this.direction.origin && this.direction.destination) {
         this.resetDirection();
       }
