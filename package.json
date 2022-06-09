@@ -6,7 +6,7 @@
     "email": "cargolink@cargolink.vn",
     "name": "cargolink"
   },
-  "repository": "https://github.com/Hieubui1312/cargolink-map",
+  "repository": "https://github.com/cargolink-map",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
